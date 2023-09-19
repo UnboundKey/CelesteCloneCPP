@@ -1,7 +1,5 @@
-
+#include "shnitzel_lib.h"
 // Platform Globals
-
-
 static bool running = true;
 
 // Platform Functions
@@ -29,6 +27,8 @@ LRESULT CALLBACK windows_window_callback(HWND window, UINT msg, WPARAM wParam, L
       break;
     }
 
+
+
     default:
     {
       result = DefWindowProcA(window, msg, wParam, lParam);
@@ -51,7 +51,7 @@ bool platform_create_window(int width, int height, char* windowTitle) {
     return false;
   }
 
-  int dwStyle = WS_THICKFRAME;
+  int dwStyle =  WS_OVERLAPPEDWINDOW;
 
   window = CreateWindowExA(0, windowTitle,windowTitle,dwStyle,100,100,width,height,NULL, NULL,instance,NULL);
 
@@ -64,7 +64,7 @@ bool platform_create_window(int width, int height, char* windowTitle) {
   return true;
 
 }
-
+ 
 void platform_update_window() {
   MSG msg;
   while(PeekMessageA(&msg,window,0,0,PM_REMOVE)) {
@@ -75,11 +75,21 @@ void platform_update_window() {
 
 #endif
 
+#ifdef __Linux__
+
+#endif
+
 int main() {
-  platform_create_window(1280,720, "Window Title");
+  platform_create_window(1280,720, "C++ Celeste Clone!");
+  bool a = true;  
+
+
   while (running) {
     platform_update_window();
+    SM_TRACE("Test");
+    SM_WARN("Test");
+    SM_ERROR("Test");
+    SM_ASSERT(false, "Assertion not hit");
   }
-
   return 0;
 }
