@@ -27,8 +27,6 @@ LRESULT CALLBACK windows_window_callback(HWND window, UINT msg, WPARAM wParam, L
       break;
     }
 
-
-
     default:
     {
       result = DefWindowProcA(window, msg, wParam, lParam);
@@ -81,15 +79,10 @@ void platform_update_window() {
 
 int main() {
   platform_create_window(1280,720, "C++ Celeste Clone!");
-  bool a = true;  
-
-
   while (running) {
+  
     platform_update_window();
-    SM_TRACE("Test");
-    SM_WARN("Test");
-    SM_ERROR("Test");
-    SM_ASSERT(false, "Assertion not hit");
+  
   }
   return 0;
 }

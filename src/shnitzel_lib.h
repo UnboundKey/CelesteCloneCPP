@@ -1,6 +1,10 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <string.h>
+
 
 // Definitions
 #ifdef _WIN32 
@@ -75,3 +79,48 @@ void _log(char* prefix, char* msg, TextColor textColor, Args... args) {
     SM_ERROR("Assertion HIT!")    \
   }                               \
 }                            
+
+
+// Bump Allocator
+
+struct BumpAllocator {
+  size_t capacity;
+  size_t used;
+  char* memory;
+};
+
+BumpAllocator make_bump_allocator(size_t size) {
+ 
+ BumpAllocator ba = {};
+ 
+ ba.memory = (char*) malloc(size);
+  if(ba.memory) {
+    ba.capacity = size;
+    memset(ba.memory,0,size);
+
+  } else {
+    SM_ASSERT(false,"Failed to allocate Memory");
+  
+  }
+  return ba;
+}
+
+
+char* bump_alloc(BumpAllocator* bumpAllocator, size_t size) {
+  char* result = nullptr;
+  
+  size_t allignedSize = (size + 7) & ~ 7;
+  if (bumpAllocator->used + allignedSize <= bumpAllocator->capacity)
+  {
+    result = bumpAllocator->memory + bumpAllocator->used;
+    bumpAllocator->used += allignedSize;
+  } else {
+    SM_ASSERT(false, "BumpAllocator is Full");
+  }
+  return result;
+}
+
+
+// File I/O
+
+
