@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include <string.h>
-
+#include <sys/stat.h>
 
 // Definitions
 #ifdef _WIN32 
@@ -15,6 +15,7 @@
 #define DEBUG_BREAK() __builtin_trap()                 
 
 #endif
+
 // Logging
 enum TextColor
 {  
@@ -123,4 +124,95 @@ char* bump_alloc(BumpAllocator* bumpAllocator, size_t size) {
 
 // File I/O
 
+long long get_timestamp(char* file) {
+   struct stat file_stat = {};
+   stat(file, &file_stat);
+   return file_stat.st_mtime;
+}
 
+bool fileExists(char* filepath) {
+  SM_ASSERT(filepath, "no filepath supplied!");
+
+  auto file = fopen(filepath, "rb");
+  if(!file) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool get_file_size(char* filepath) {
+  SM_ASSERT(filepath, "no filepath supplied!");
+
+  long filesize = 0;
+  auto file = fopen(filepath, "rb");
+  
+  if(!file) {
+    SM_ERROR("Failed to open file at: %s", filepath);
+    return 0;
+  }
+
+  fseek(file,0,SEEK_END);
+  filesize = ftell(file);
+  fseek(file, 0,SEEK_SET);
+  fclose(file);
+
+  return filesize;
+}
+
+char* read_file(char* filepath, int* fileSize, char* buffer) {
+  SM_ASSERT(filepath, "No filepath supplied!");
+  SM_ASSERT(fileSize, "No fileSize supplied!");
+  SM_ASSERT(buffer, "No buffer supplied!");
+
+  *fileSize = 0;
+  auto file = fopen(filepath,"rb");
+  
+  if(!file) {
+    SM_ERROR("Failed to open file at: %s", filepath);
+    return nullptr;
+  }
+
+  fseek(file,0,SEEK_END);
+  *fileSize = ftell(file);
+  fseek(file, 0,SEEK_SET);
+
+  memset(buffer,0, *fileSize +1);
+  fread(buffer, sizeof(char),*fileSize,file);
+
+  fclose(file);
+
+  return buffer;
+}
+
+char* read_file(char* filePath, int* fileSize, BumpAllocator* bumpAllocator)
+{
+  char* file = nullptr;
+  long fileSize2 = get_file_size(filePath);
+
+  if(fileSize2)
+  {
+    char* buffer = bump_alloc(bumpAllocator, fileSize2 + 1);
+
+    file = read_file(filePath, fileSize, buffer);
+  }
+
+  return file; 
+}
+
+void write_file(char* filePath, char* buffer, int size) {
+  SM_ASSERT(filePath, "No FilePath Supplied!");
+  SM_ASSERT(buffer, "No Buffer Supplied!");
+
+  auto file = fopen(filePath, "wb");
+
+  if(!file) {
+    SM_ERROR("failed to open file: %s", filePath);
+    return;
+  }
+
+  fwrite(buffer,sizeof(char),size,file);
+
+  fclose(file);
+
+}

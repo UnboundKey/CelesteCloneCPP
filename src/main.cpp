@@ -79,10 +79,9 @@ void platform_update_window() {
 
 int main() {
   platform_create_window(1280,720, "C++ Celeste Clone!");
+  
   while (running) {
-  
     platform_update_window();
-  
   }
   return 0;
 }
